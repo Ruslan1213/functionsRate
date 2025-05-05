@@ -54,9 +54,9 @@ namespace CurrencyProcessor
                 return new BadRequestObjectResult("Unsupported HTTP method.");
             }
 
-            if (inputCurrencies == null || !inputCurrencies.Any() || inputCurrencies.Count < 1)
+            if (inputCurrencies == null || !inputCurrencies.Any() || inputCurrencies.Count < 2)
             {
-                return new BadRequestObjectResult("No currency codes provided.");
+                return new BadRequestObjectResult("No currency codes provided or length less the 2");
             }
 
             var distinctCurrencies = inputCurrencies.Select(c => c.ToUpperInvariant()).Distinct().ToList();
