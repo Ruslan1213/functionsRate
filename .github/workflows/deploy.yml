@@ -1,0 +1,52 @@
+﻿name: Deploy Azure Function
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Build and publish .NET project
+      run: |
+        dotnet publish -c Release -o publish_output
+
+    - name: Verify publish output structure
+      run: |
+        ls -R publish_output
+
+    - name: Create deployment package
+      run: |
+        cd publish_output
+        zip -r ../function.zip .
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy to Azure Function App
+      uses: azure/functions-action@v1
+      with:
+        app-name: 'YourFunctionAppName'
+        package: function.zip
+        clean: true
+        scm-do-build-during-deployment: false
+
+    - name: Verify deployment
+      run: |
+        echo "Deployment completed. Check Azure Portal for function status."
